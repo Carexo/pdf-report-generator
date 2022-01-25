@@ -1,0 +1,16 @@
+{
+  "name": "report-generator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Carexo",
+  "devDependencies": {
+    "electron": "^16.0.7"
+  },
+  "dependencies": {
+    "pdfmake": "^0.2.4"
+  }
+}
