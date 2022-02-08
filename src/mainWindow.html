@@ -8,27 +8,234 @@
   <body>
     <h1>Wygeneruj Raport</h1>
     <form>
-      <div class="form-group">
-        <label for="title">Nr Raportu</label>
-        <input type="text" id="raportId" required />
-      </div>
+      <fieldset>
+        <legend>Raport</legend>
+        <div class="form-group">
+          <label for="reportId">Nr Raportu</label>
+          <input type="text" id="reportId" required />
+        </div>
 
-      <div class="form-group">
-        <label for="title">Miejscowość</label>
-        <input type="text" id="city" required />
-      </div>
+        <div class="form-group">
+          <label for="city">Miejscowość</label>
+          <input type="text" id="city" required />
+        </div>
 
-      <div class="form-group">
-        <label for="title">Ulica</label>
-        <input type="text" id="street" required />
-      </div>
+        <div class="form-group">
+          <label for="street">Ulica</label>
+          <input type="text" id="street" required />
+        </div>
 
-      <div class="form-group">
-        <label for="title">Data</label>
-        <input type="month" id="date" lang="pl-PL" />
-      </div>
+        <div class="form-group">
+          <label for="date">Data</label>
+          <input type="month" id="date" lang="pl-PL" />
+        </div>
 
-      <button type="submit">Wygeneruj</button>
+        <div class="form-group">
+          <label for="backgroundImage">Zdjęcie tła strony pierwszej</label>
+          <input
+            type="file"
+            id="backgroundImage"
+            name="file"
+            accept=".jpg,.jpeg,.png"
+            required
+          />
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Umowy</legend>
+        <div class="form-group">
+          <label for="sendedOfferts">Wysłane oferty</label>
+          <input type="number" id="sendedOfferts" required />
+        </div>
+
+        <div class="form-group">
+          <label for="meetingsAndPresentations">Spotaknie i prezentacje</label>
+          <input type="number" id="meetingsAndPresentations" required />
+        </div>
+
+        <div class="form-group">
+          <label for="reservationContracts">Umowy rezerwacyjne</label>
+          <input type="number" id="reservationContracts" required />
+        </div>
+
+        <div class="form-group">
+          <label for="developmentContracts">Umowy deweloperskie</label>
+          <input type="number" id="developmentContracts" required />
+        </div>
+
+        <div class="form-group">
+          <label for="transfer">Umowy przenoszące</label>
+          <input type="number" id="transfer" required />
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Aktywne ogłoszenia</legend>
+        <div class="form-group">
+          <label for="otodom">Ogłoszenia Otodom.pl</label>
+          <input type="number" id="otodom" required />
+        </div>
+
+        <div class="form-group">
+          <label for="gratka">Ogłoszenia gratka.pl</label>
+          <input type="number" id="gratka" required />
+        </div>
+
+        <div class="form-group">
+          <label for="olx">Ogłoszenia olx.pl</label>
+          <input type="number" id="olx" required />
+        </div>
+
+        <div class="form-group">
+          <label for="googleRequestOffer">Zapytania o ofertę</label>
+          <input type="number" id="googleRequestOffer" required />
+        </div>
+
+        <div class="form-group">
+          <label for="analyticsImage">Zdjęcie Google analytics</label>
+          <input
+            type="file"
+            id="analyticsImage"
+            name="file"
+            accept=".jpg,.jpeg,.png"
+            required
+          />
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Facebook</legend>
+
+        <div class="form-group">
+          <label for="fanpage">Zasięg Fanpage</label>
+          <input type="number" id="fanpage" required />
+        </div>
+
+        <div class="form-group">
+          <label for="facebookRequestOffer">Zapytania o ofertę</label>
+          <input type="number" id="facebookRequestOffer" required />
+        </div>
+
+        <div class="form-group">
+          <label for="post1">Post Sponsorowany:</label>
+          <input type="text" id="post1" name="post" required />
+          <button
+            type="button"
+            id="addPost"
+            data-input-number="1"
+            data-name="post"
+          >
+            +
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label for="group1">Grupy tematyczne:</label>
+          <input type="text" id="group1" name="group" required />
+          <button
+            type="button"
+            id="addGroup"
+            data-input-number="1"
+            data-name="group"
+          >
+            +
+          </button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Wnioski</legend>
+
+        <div class="form-group textarea-group">
+          <label for="conclusion1">Wnioski:</label>
+          <textarea
+            name="conclusion"
+            id="conclusion1"
+            rows="10"
+            required
+          ></textarea>
+          <button
+            type="button"
+            id="addConclusion"
+            data-input-number="1"
+            data-name="conclusion"
+          >
+            +
+          </button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Tematy buildman</legend>
+
+        <div class="form-group textarea-group">
+          <label for="topic1">Tematy buildman:</label>
+          <textarea name="topic" id="topic1" rows="10" required></textarea>
+          <button
+            type="button"
+            id="addTopic"
+            data-input-number="1"
+            data-name="topic"
+          >
+            +
+          </button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Rezerwacje</legend>
+
+        <div class="form-group textarea-group">
+          <label for="reservation1"
+            >Rezerwacje: (Tytuł np. **budynek a**)</label
+          >
+          <textarea
+            name="reservation"
+            id="reservation1"
+            rows="5"
+            required
+          ></textarea>
+          <button
+            type="button"
+            id="addReservation"
+            data-input-number="1"
+            data-name="reservation"
+          >
+            +
+          </button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Umowy deweloperskie</legend>
+
+        <div class="form-group textarea-group">
+          <label for="development1"
+            >Umowy deweloperskie: (Tytuł np. **budynek a**)</label
+          >
+          <textarea
+            name="development"
+            id="development1"
+            rows="5"
+            required
+          ></textarea>
+          <button
+            type="button"
+            id="addDevelopment"
+            data-input-number="1"
+            data-name="development"
+          >
+            +
+          </button>
+        </div>
+      </fieldset>
+
+      <div>
+        <button type="submit" class="primary-btn">Wygeneruj</button>
+        <button type="button" class="secondary-btn" id="new-report">
+          Nowy Raport
+        </button>
+      </div>
     </form>
 
     <script type="module" src="./mainWindow.js"></script>

@@ -1,39 +1,90 @@
+const { dialog } = require("@electron/remote");
+const path = require("path");
 const fs = require("fs");
+const os = require("os");
 const PdfPrinter = require("pdfmake");
 
 const fonts = {
   Roboto: {
-    normal: "src/fonts/Roboto/Roboto-Regular.ttf",
-    bold: "src/fonts/Roboto/Roboto-Bold.ttf",
+    normal: path.join(__dirname, "/fonts/Roboto/Roboto-Regular.ttf"),
+    bold: path.join(__dirname, "/fonts/Roboto/Roboto-Bold.ttf"),
   },
   RedHatText: {
-    normal: "src/fonts/RedHatText/RedHatText-Regular.ttf",
-    bold: "src/fonts/RedHatText/RedHatText-Bold.ttf",
+    normal: path.join(__dirname, "/fonts/RedHatText/RedHatText-Regular.ttf"),
+    bold: path.join(__dirname, "/fonts/RedHatText/RedHatText-Bold.ttf"),
+  },
+  RedHatTextMedium: {
+    normal: path.join(__dirname, "/fonts/RedHatText/RedHatText-Medium.ttf"),
   },
   RobotoSlab: {
-    normal: "src/fonts/RobotoSlab/RobotoSlab-Regular.ttf",
-    bold: "src/fonts/RobotoSlab/RobotoSlab-Bold.ttf",
+    normal: path.join(__dirname, "/fonts/RobotoSlab/RobotoSlab-Regular.ttf"),
+    bold: path.join(__dirname, "/fonts/RobotoSlab/RobotoSlab-Bold.ttf"),
   },
 };
 
 const printer = new PdfPrinter(fonts);
+
+const calcMargin = (data, a, b, shift = 2) => {
+  return a * data.length + b + (data.match(/1/g) || []).length * shift;
+};
+
+const splitInput = (textArray) => {
+  return textArray.map((item) => [
+    {
+      text:
+        (item.match(/\*\*.*\*\*/) || [""])[0]
+          .replace(/\*/g, "")
+          .toUpperCase() || "BRAK",
+      style: ["mediumHeader"],
+    },
+    {
+      text: item.replace(/\*\*.*\*\*\s*/, ""),
+      style: ["items"],
+    },
+  ]);
+};
 
 const generatePDF = (data) => {
   const docDefinition = {
     background: (currentPage, pageSize) => {
       if (currentPage === 1) {
         return {
-          image: "src/images/background.jpg",
+          image: data.backgroundImage,
         };
       }
       return {
-        image: "src/images/background-image.jpg",
+        image: path.join(__dirname, "/images/background-image.jpg"),
       };
     },
     pageMargins: 0,
     pageSize: "A4",
     content: [
       // First Page
+      {
+        canvas: [
+          {
+            type: "rect",
+            x: 40,
+            y: 40,
+            w: 515,
+            h: 550,
+            color: "#000000",
+            fillOpacity: 0.6,
+          },
+        ],
+      },
+      {
+        canvas: [
+          {
+            type: "rect",
+            x: 60,
+            y: -200,
+            w: 475,
+            h: 3,
+            color: "#FFFFFF",
+          },
+        ],
+      },
       {
         text: `INWESTYCJA DEWELOPERSKA ${data.city.toUpperCase()}\n UL. ${data.street.toUpperCase()}`,
         font: "RedHatText",
@@ -42,7 +93,7 @@ const generatePDF = (data) => {
         fontSize: 45,
         characterSpacing: 4,
         lineHeight: 0.85,
-        margin: [60, 60, 60, 160],
+        margin: [60, -520, 60, 160],
       },
       {
         text: "RAPORT PRZYGOTOWANY\n PRZEZ M2",
@@ -64,7 +115,7 @@ const generatePDF = (data) => {
           body: [
             [
               {
-                text: `Raport nr ${data.raportId}/${data.year}`,
+                text: `Raport nr ${data.reportId}/${data.year}`,
                 lineHeight: 1.1,
                 margin: [0, 5, 0, 0],
                 font: "RedHatText",
@@ -112,14 +163,21 @@ const generatePDF = (data) => {
         columns: [
           {
             width: "50%",
-            text: "340",
+            text: data.sendedOfferts,
             alignment: "right",
+            margin: [0, 0, calcMargin(data.sendedOfferts, -8, 24), 0],
             style: ["circle", "mediumCircle"],
           },
           {
             width: "50%",
-            text: "68",
+            text: data.meetingsAndPresentations,
             alignment: "left",
+            margin: [
+              calcMargin(data.meetingsAndPresentations, -8, 16),
+              0,
+              0,
+              0,
+            ],
             style: ["circle", "mediumCircle"],
           },
         ],
@@ -139,7 +197,7 @@ const generatePDF = (data) => {
             width: "50%",
             text: "Spotkanie\n i prezentacje",
             alignment: "center",
-            margin: [0, 0, 190, 0],
+            margin: [-195, 0, 0, 0],
             style: ["circleDescription"],
           },
         ],
@@ -192,20 +250,22 @@ const generatePDF = (data) => {
         columns: [
           {
             width: "33%",
-            text: "26",
+            text: data.reservationContracts,
             alignment: "right",
+            margin: [0, 0, calcMargin(data.reservationContracts, -8, 16), 0],
             style: ["circle", "mediumCircle"],
           },
           {
             width: "33%",
-            text: "11",
+            text: data.developmentContracts,
             alignment: "center",
             style: ["circle", "mediumCircle"],
           },
           {
             width: "33%",
-            text: "0",
+            text: data.transfer,
             alignment: "left",
+            margin: [calcMargin(data.transfer, -8, 8), 0, 0, 0],
             style: ["circle", "mediumCircle"],
           },
         ],
@@ -308,20 +368,22 @@ const generatePDF = (data) => {
         columns: [
           {
             width: "33%",
-            text: "96",
+            text: data.otodom,
             alignment: "right",
+            margin: [0, 0, calcMargin(data.otodom, -10, 20, 3), 0],
             style: ["circle", "largeCircle"],
           },
           {
             width: "33%",
-            text: "97",
+            text: data.gratka,
             alignment: "center",
             style: ["circle", "largeCircle"],
           },
           {
             width: "33%",
-            text: "25",
+            text: data.olx,
             alignment: "left",
+            margin: [calcMargin(data.olx, -12, 24, 3), 0, 0, 0],
             style: ["circle", "largeCircle"],
           },
         ],
@@ -412,8 +474,13 @@ const generatePDF = (data) => {
                     ],
                   },
                   {
-                    text: "162",
-                    margin: [25, -60, 0, 0],
+                    text: data.googleRequestOffer,
+                    margin: [
+                      25 + calcMargin(data.googleRequestOffer, -6, 18, 1),
+                      -60,
+                      0,
+                      0,
+                    ],
                     style: ["circle", "smallCircle"],
                   },
                 ],
@@ -422,7 +489,7 @@ const generatePDF = (data) => {
             },
           ],
           {
-            image: "src/images/plot.png",
+            image: data.analyticsImage,
             width: 320,
           },
         ],
@@ -461,7 +528,7 @@ const generatePDF = (data) => {
                 text: "Zasięg\n Fanpage\n (total)",
                 fontSize: 18,
                 alignment: "center",
-                margin: [0, 0, 0, 0],
+                margin: [50, -5, 0, 0],
                 style: ["circleDescription"],
               },
 
@@ -470,22 +537,23 @@ const generatePDF = (data) => {
                   canvas: [
                     {
                       type: "ellipse",
-                      x: 40,
+                      x: 55,
                       y: 18,
-                      color: "#bbb290",
+                      color: "#e2cb9c",
                       r1: 45,
                       r2: 45,
                     },
                   ],
                 },
                 {
-                  text: "162",
-                  margin: [25, -60, 0, 0],
+                  text: `${data.fanpage.replace(/\B(?=(\d{3})+(?!\d))/g, " ")}`,
+                  margin: [25 + calcMargin(data.fanpage, -5, 25, 1), -60, 0, 0],
                   style: ["circle", "smallCircle"],
                 },
               ],
             ],
             margin: [0, 70, 0, 0],
+            width: "50%",
           },
 
           {
@@ -494,7 +562,7 @@ const generatePDF = (data) => {
                 text: "Zapytania\n o ofertę\n (total)",
                 fontSize: 18,
                 alignment: "center",
-                margin: [0, 0, 0, 0],
+                margin: [20, -5, 0, 0],
                 style: ["circleDescription"],
               },
 
@@ -505,23 +573,113 @@ const generatePDF = (data) => {
                       type: "ellipse",
                       x: 40,
                       y: 18,
-                      color: "#bbb290",
+                      color: "#c8ae83",
                       r1: 45,
                       r2: 45,
                     },
                   ],
                 },
                 {
-                  text: "162",
-                  margin: [25, -60, 0, 0],
+                  text: data.facebookRequestOffer,
+                  margin: [
+                    18 + calcMargin(data.facebookRequestOffer, -6, 24, 1),
+                    -60,
+                    0,
+                    0,
+                  ],
                   style: ["circle", "smallCircle"],
                 },
               ],
             ],
             margin: [0, 70, 0, 0],
+            width: "50%",
           },
         ],
       },
+      {
+        columns: [
+          [
+            {
+              text: "Post sponsorowany:",
+              style: ["smallListHeader"],
+            },
+            {
+              ul: data.post,
+              lineHeight: 1.2,
+              margin: [10, 3, 0, 0],
+            },
+          ],
+
+          [
+            {
+              text: "Grupy tematyczne:",
+              style: ["smallListHeader"],
+            },
+            {
+              ul: data.group,
+              lineHeight: 1.2,
+              margin: [10, 3, 0, 0],
+            },
+          ],
+        ],
+        margin: [80, 50, 0, 0],
+        columnGap: 50,
+        pageBreak: "after",
+      },
+
+      // fouth Page
+      {
+        text: "WNIOSKI",
+        style: ["listHeader"],
+      },
+      {
+        separator: ")",
+        ol: data.conclusion.map((conclusion) => ({
+          text: conclusion,
+          style: ["listElement"],
+        })),
+        fontSize: 15,
+        alignment: "justify",
+        font: "RedHatTextMedium",
+        margin: [35, 10, 50, 0],
+        pageBreak: "after",
+      },
+
+      // fifth Page
+      {
+        text: "TEMATY BUILDMAN",
+        style: ["listHeader"],
+      },
+      {
+        separator: ")",
+        ol: data.topic.map((topic) => ({
+          text: topic,
+          style: ["listElement"],
+        })),
+        fontSize: 15,
+        alignment: "justify",
+        font: "RedHatTextMedium",
+        margin: [20, 10, 30, 0],
+        pageBreak: "after",
+      },
+
+      // sixth Page
+      {
+        text: "REZERWACJE",
+        style: ["listHeader"],
+      },
+      splitInput(data.reservation),
+      {
+        text: "",
+        pageBreak: "after",
+      },
+
+      // seventh Page
+      {
+        text: "UMOWY DEWELOPERSKIE",
+        style: ["listHeader"],
+      },
+      splitInput(data.development),
     ],
 
     styles: {
@@ -556,22 +714,69 @@ const generatePDF = (data) => {
       largeDescription: {
         fontSize: 15,
       },
+
+      smallListHeader: {
+        fontSize: 13,
+        bold: true,
+      },
+      listHeader: {
+        fontSize: 20,
+        bold: true,
+        font: "RedHatText",
+
+        margin: [20, 20, 0, 0],
+      },
+      listElement: {
+        margin: [0, 0, 0, 20],
+      },
+      mediumHeader: {
+        fontSize: 14,
+        bold: true,
+        font: "RedHatText",
+
+        margin: [20, 15, 0, 0],
+      },
+      items: {
+        fontSize: 14,
+        font: "RedHatTextMedium",
+        margin: [20, 2, 20, 5],
+      },
     },
   };
 
   const pdfDoc = printer.createPdfKitDocument(docDefinition);
-  pdfDoc.pipe(fs.createWriteStream("report.pdf"));
-  pdfDoc.end();
+
+  dialog
+    .showSaveDialog({
+      title: "Wybierz ścieżke do zapisu raportu",
+      defaultPath: path.join(
+        os.homedir(),
+        `Desktop/Raport_${data.month.toLowerCase()}-${data.year}_${data.street}`
+      ),
+      buttonLabel: "Zapisz",
+      filters: [
+        {
+          name: "PDF file",
+          extensions: ["pdf"],
+        },
+      ],
+      properties: [],
+    })
+    .then((file) => {
+      if (!file.canceled) {
+        const filePath = file.filePath.toString();
+
+        const checkedFiledPath = filePath.replace(/[.].*/, "") + ".pdf";
+
+        console.log(checkedFiledPath);
+        pdfDoc.pipe(fs.createWriteStream(checkedFiledPath));
+        pdfDoc.end();
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      pdfDoc.end();
+    });
 };
 
-const data = {
-  city: "chorzów",
-  date: "2022-01",
-  month: "STYCZEŃ",
-  raportId: "13",
-  street: "nomiarki",
-  year: "2022",
-};
-
-generatePDF(data);
-// export default generatePDF;
+export default generatePDF;
